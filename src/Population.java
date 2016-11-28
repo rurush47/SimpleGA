@@ -1,4 +1,5 @@
 import com.sun.org.apache.bcel.internal.generic.POP;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader;
 
 import java.util.ArrayList;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Population {
 
-    ArrayList<Individual> individuals = new ArrayList<>();
+    private ArrayList<Individual> individuals = new ArrayList<>();
     private int populationSize;
 
     public Population(int size, boolean init)
@@ -28,6 +29,8 @@ public class Population {
             ind.Init();
             individuals.add(ind);
         }
+        calculateFitness();
+
     }
 
     public void calculateFitness()
@@ -53,7 +56,6 @@ public class Population {
         if(!individuals.isEmpty())
         {
             Individual fittest = individuals.get(0);
-            fittest.calculateFitness();
 
             for (int i = 0; i < individuals.size(); i++)
             {
@@ -75,6 +77,43 @@ public class Population {
     public Individual getIndividualAt(int index)
     {
         return individuals.get(index);
+    }
+
+    public double getAverageFitness()
+    {
+        int sum = getTotalFitness();
+        return sum/individuals.size();
+    }
+
+    public Individual getIndvividualFromRoulette()
+    {
+        int sum = getTotalFitness();
+        int rouletteSpin = (int) (Math.random() * sum);
+        int currentSum = 0;
+
+        for (int i = 0; i < individuals.size(); i++)
+        {
+            Individual currentIndividual = individuals.get(i);
+            currentSum += currentIndividual.fitness;
+
+            if(currentSum >= rouletteSpin)
+            {
+                return currentIndividual;
+            }
+        }
+
+        return null;
+    }
+
+    public int getTotalFitness()
+    {
+        int sum = 0;
+        for (int i = 0; i < individuals.size(); i++)
+        {
+            sum += individuals.get(i).fitness;
+        }
+
+        return sum;
     }
 
 }
